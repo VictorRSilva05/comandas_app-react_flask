@@ -1,75 +1,151 @@
-import { useForm } from 'react-hook-form';
-import {
-    TextField,
-    Button,
-    Box,
-    Typography,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Select,
-    Toolbar
-} from '@mui/material';
-const FuncionarioForm = () => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
-    const onSubmit = (data) => {
-        console.log("Dados do funcionário:", data);
-    };
-    return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ backgroundColor: '#ADD8E6', padding: 2, borderRadius: 1, mt: 2 }}>
-            <Toolbar sx={{ backgroundColor: '#ADD8E6', padding: 1, borderRadius: 2, mb: 2, display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h6" color="primary">Dados Funcionário</Typography>
-            </Toolbar>
-            <Box sx={{ backgroundColor: 'white', padding: 2, borderRadius: 3, mb: 2 }}>
+import { useState } from 'react';
 
-                <TextField
-                    label="Nome" fullWidth margin="normal"
-                    {...register('nome', { required: 'Nome é obrigatório' })} error={!!errors.nome} helperText={errors.nome?.message}
-                />
-                <TextField
-                    label="CPF" fullWidth margin="normal"
-                    {...register('cpf', { required: 'CPF é obrigatório' })} error={!!errors.cpf} helperText={errors.cpf?.message}
-                />
-                <TextField
-                    label="Matrícula" fullWidth margin="normal"
-                    {...register('matricula', { required: 'Matrícula é obrigatória' })} error={!!errors.matricula} helperText={errors.matricula?.message}
-                />
-                <TextField
-                    label="Telefone" fullWidth margin="normal" {...register('telefone')}
-                />
-                <TextField
-                    label="Senha" type="password" fullWidth margin="normal"
-                    {...register('senha', { required: 'Senha é obrigatória', minLength: { value: 6, message: 'Senha deve ter pelo menos 6 caracteres' } })}
-                    error={!!errors.senha} helperText={errors.senha?.message}
-                />
-                <FormControl fullWidth margin="normal">
-                    <InputLabel id="grupo-label">Grupo</InputLabel>
-                    <Select
-                        labelId="grupo-label"
-                        label="Grupo"
-                        onChange={(e) => setGrupo(e.target.value)}
-                        {...register('grupo')}
-                    >
-                        <MenuItem value="admin">Admin</MenuItem>
-                        <MenuItem value="gerente">Gerente</MenuItem>
-                        <MenuItem value="funcionario">Funcionário</MenuItem>
-                    </Select>
-                </FormControl>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                    <Button sx={{ mr: 1 }}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" variant="contained">
-                        Cadastrar
-                    </Button>
-                </Box>
+export default function Funcionario() {
+  const [funcionarios, setFuncionarios] = useState([]);
+  const [form, setForm] = useState({
+    nome: '',
+    cpf: '',
+    matricula: '',
+    telefone: '',
+    senha: '',
+    grupo: '',
+  });
 
+  const formatarCPF = (valor) => {
+    valor = valor.replace(/\D/g, '');
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    return valor;
+  };
 
-            </Box>
-        </Box>
+  const formatarTelefone = (valor) => {
+    valor = valor.replace(/\D/g, '');
+    valor = valor.replace(/^(\d{2})(\d)/g, '($1) $2');
+    valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+    return valor;
+  };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let novoValor = value;
 
-    );
-};
-export default FuncionarioForm;
+    if (name === 'cpf') novoValor = formatarCPF(value);
+    if (name === 'telefone') novoValor = formatarTelefone(value);
 
+    setForm({ ...form, [name]: novoValor });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { nome, cpf, matricula, senha, grupo } = form;
+    if (!nome || !cpf || !matricula || !senha || !grupo) {
+      alert('Preencha todos os campos obrigatórios!');
+      return;
+    }
+    setFuncionarios([...funcionarios, form]);
+    setForm({
+      nome: '',
+      cpf: '',
+      matricula: '',
+      telefone: '',
+      senha: '',
+      grupo: '',
+    });
+  };
+
+  return (
+    <div className="p-8">
+      <h1 className="text-3xl text-synthPink mb-6">Cadastro de Funcionários</h1>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-lg">
+        <input
+          type="text"
+          name="nome"
+          placeholder="Nome"
+          value={form.nome}
+          onChange={handleChange}
+          className="p-2 rounded bg-black text-neon border border-synthPink"
+        />
+        <input
+          type="text"
+          name="cpf"
+          placeholder="CPF"
+          value={form.cpf}
+          onChange={handleChange}
+          maxLength={14}
+          className="p-2 rounded bg-black text-neon border border-synthPink"
+        />
+        <input
+          type="text"
+          name="matricula"
+          placeholder="Matrícula"
+          value={form.matricula}
+          onChange={handleChange}
+          className="p-2 rounded bg-black text-neon border border-synthPink"
+        />
+        <input
+          type="text"
+          name="telefone"
+          placeholder="Telefone"
+          value={form.telefone}
+          onChange={handleChange}
+          maxLength={15}
+          className="p-2 rounded bg-black text-neon border border-synthPink"
+        />
+        <input
+          type="password"
+          name="senha"
+          placeholder="Senha"
+          value={form.senha}
+          onChange={handleChange}
+          className="p-2 rounded bg-black text-neon border border-synthPink"
+        />
+        <select
+          name="grupo"
+          value={form.grupo}
+          onChange={handleChange}
+          className="p-2 rounded bg-black text-neon border border-synthPink"
+        >
+          <option value="">Selecione o Grupo</option>
+          <option value="admin">Admin</option>
+          <option value="gerente">Gerente</option>
+          <option value="funcionario">Funcionário</option>
+        </select>
+
+        <button
+          type="submit"
+          className="bg-synthPink text-black px-4 py-2 rounded hover:bg-synthBlue"
+        >
+          Cadastrar Funcionário
+        </button>
+      </form>
+
+      {funcionarios.length > 0 && (
+        <>
+          <h2 className="text-2xl text-synthPink mt-8 mb-4">Funcionários Cadastrados</h2>
+          <table className="w-full text-neon border-collapse">
+            <thead>
+              <tr>
+                <th className="border border-synthPink p-2">Nome</th>
+                <th className="border border-synthPink p-2">CPF</th>
+                <th className="border border-synthPink p-2">Telefone</th>
+                <th className="border border-synthPink p-2">Grupo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {funcionarios.map((func, index) => (
+                <tr key={index}>
+                  <td className="border border-synthPink p-2">{func.nome}</td>
+                  <td className="border border-synthPink p-2">{func.cpf}</td>
+                  <td className="border border-synthPink p-2">{func.telefone}</td>
+                  <td className="border border-synthPink p-2">{func.grupo}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+    </div>
+  );
+}
