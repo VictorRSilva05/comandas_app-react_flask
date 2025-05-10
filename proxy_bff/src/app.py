@@ -6,6 +6,7 @@ from settings import PROXY_PORT, PROXY_DEBUG, TEMPO_SESSION # carrega o arquivo 
 from funcoes import Funcoes
 # blueprints
 from mod_funcionario.funcionario import bp_funcionario
+from mod_cliente.cliente import bp_cliente
 
 # Configuração básica de logging
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +47,7 @@ def before_request():
  
 # registra as rotas dos blueprints
 app.register_blueprint(bp_funcionario)
+app.register_blueprint(bp_cliente)
    
 # ponto de entrada para execução
 if __name__ == '__main__':
